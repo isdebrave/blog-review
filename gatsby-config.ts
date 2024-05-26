@@ -12,4 +12,4 @@ const config: GatsbyConfig = {
   plugins: [],
 }
 
-export default config
+export default config;
