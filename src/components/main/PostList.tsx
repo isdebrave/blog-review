@@ -1,7 +1,7 @@
 import styled from "@emotion/styled";
 import PostItem from "./PostItem";
 import { PostListItemType } from "types/PostItem.types";
-import { useMemo } from "react";
+import useInfiniteScroll from "hooks/useInfiniteScroll";
 
 const PostListWrapper = styled.div`
   display: grid;
@@ -24,19 +24,11 @@ interface IPostList {
 }
 
 const PostList: React.FC<IPostList> = ({ selectedCategory, posts }) => {
-  const selectedPostList = useMemo<PostListItemType[]>(() => {
-    return posts.filter((post) => {
-      const { categories } = post.node.frontmatter;
-
-      return selectedCategory === "All"
-        ? true
-        : categories.includes(selectedCategory);
-    });
-  }, [selectedCategory]);
+  const { containerRef, postList } = useInfiniteScroll(selectedCategory, posts);
 
   return (
-    <PostListWrapper>
-      {selectedPostList.map((post) => (
+    <PostListWrapper ref={containerRef}>
+      {postList.map((post) => (
         <PostItem
           key={post.node.id}
           {...post.node.frontmatter}
