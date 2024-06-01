@@ -32,7 +32,7 @@ const PostList: React.FC<IPostList> = ({ selectedCategory, posts }) => {
         <PostItem
           key={post.node.id}
           {...post.node.frontmatter}
-          link="https://www.google.co.kr/"
+          link={post.node.fields.slug}
         />
       ))}
     </PostListWrapper>
