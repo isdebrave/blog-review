@@ -1,32 +1,25 @@
-import styled from "@emotion/styled";
-import Footer from "components/common/Footer";
-import GlobalStyle from "components/common/GlobalStyle";
+import Template from "components/common/Template";
 import CategoryList, { ICategoryList } from "components/main/CategoryList";
 import Introduction from "components/main/Introduction";
 import PostList from "components/main/PostList";
 import { graphql } from "gatsby";
 import { IGatsbyImageData } from "gatsby-plugin-image";
 import queryString from "query-string";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { PostListItemType } from "types/PostItem.types";
-
-const CATEGORY_LIST = {
-  All: 5,
-  Web: 3,
-  Mobile: 2,
-};
-
-const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-`;
 
 interface IIndexPage {
   location: {
     search: string;
   };
   data: {
+    site: {
+      siteMetadata: {
+        title: string;
+        description: string;
+        siteUrl: string;
+      };
+    };
     allMarkdownRemark: {
       edges: PostListItemType[];
     };
@@ -34,14 +27,20 @@ interface IIndexPage {
       childImageSharp: {
         gatsbyImageData: IGatsbyImageData;
       };
+      publicURL: string;
     };
   };
 }
 
 const IndexPage: React.FC<IIndexPage> = (props) => {
   const { search } = props.location;
+  const { title, description, siteUrl } = props.data.site.siteMetadata;
   const { edges } = props.data.allMarkdownRemark;
-  const { gatsbyImageData } = props.data.file.childImageSharp;
+  const {
+    childImageSharp: { gatsbyImageData },
+    publicURL,
+  } = props.data.file;
+
   const [categoryList, setCategoryList] = useState<
     ICategoryList["categoryList"]
   >({});
@@ -73,16 +72,19 @@ const IndexPage: React.FC<IIndexPage> = (props) => {
   }, []);
 
   return (
-    <Container>
-      <GlobalStyle />
+    <Template
+      title={title}
+      description={description}
+      url={siteUrl}
+      image={publicURL}
+    >
       <Introduction profileImage={gatsbyImageData} />
       <CategoryList
         selectedCategory={selectedCategory}
         categoryList={categoryList}
       />
       <PostList selectedCategory={selectedCategory} posts={edges} />
-      <Footer />
-    </Container>
+    </Template>
   );
 };
 
@@ -90,6 +92,13 @@ export default IndexPage;
 
 export const getPostList = graphql`
   query getPostList {
+    site {
+      siteMetadata {
+        title
+        description
+        siteUrl
+      }
+    }
     allMarkdownRemark(
       sort: [{ frontmatter: { date: DESC } }, { frontmatter: { title: DESC } }]
     ) {
